@@ -1,6 +1,6 @@
-import React from "react"
+import React from "react";
 
-const Select = ({ data, handleChange }) => {
+const Select = ({ data, handleChange, value }) => {
   const styles = {
     main: `w-full text-black font-bold rounded p-1`,
     label: `text-white`,
@@ -15,6 +15,7 @@ const Select = ({ data, handleChange }) => {
         id={data.id}
         className={styles.select}
         onChange={(e) => handleChange(e)}
+        value={value ? value : data.label}
       >
         <option className={styles.option} hidden>
           {data.label}
@@ -30,4 +31,4 @@ const Select = ({ data, handleChange }) => {
   );
 };
 
-export default Select
+export default Select;

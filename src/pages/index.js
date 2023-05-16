@@ -6,12 +6,20 @@ import Login from "./components/Login";
 import { useEffect } from "react";
 import { useAppState } from "@/context/AppProvider";
 import Text from "./components/Text";
+import { getReports } from "@/firebase/firestore";
+import Loading from "./components/Loading";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   const user = useAuthHook();
-  const [{}, dispatch] = useAppState();
+  const [{ reports, profile }, dispatch] = useAppState();
+
+  useEffect(() => {
+    // console.log(profile);
+  }, [profile]);
+
+  useEffect(() => {}, []);
 
   useEffect(() => {
     let years = new Array(6);
@@ -30,12 +38,14 @@ export default function Home() {
   };
   return (
     <main className={styles.main}>
-      <Header user={user} />
       {user ? (
-        <div className="flex justify-start w-full p-10">
-          <SideBar />
-          <Text />
-        </div>
+        profile.uid ? (
+          <div className="flex justify-center w-full p-10">
+            <Text />
+          </div>
+        ) : (
+          <Loading />
+        )
       ) : (
         <Login />
       )}

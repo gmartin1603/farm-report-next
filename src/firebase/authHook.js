@@ -15,7 +15,9 @@ const useAuthHook = () => {
         console.log(`${userObj.email} signed in`);
         setUser(userObj.uid);
         await getDoc(doc(db, userObj.uid, "profile")).then((doc) => {
-          dispatch({ type: "SET-OBJ", name: "profile", load: doc.data() });
+          let profile = structuredClone(doc.data());
+          profile["uid"] = userObj.uid;
+          dispatch({ type: "SET-OBJ", name: "profile", load: profile });
         });
       } else {
         setUser(false);

@@ -2,7 +2,6 @@ export const initialState = {
   profile: {
     dName: "User",
     email: "",
-    uid: "",
   },
   names: ["Fred", "Bob", "Joe"],
   commodities: ["Corn", "Soy Beans"],
@@ -48,19 +47,18 @@ export const initialState = {
       units: ["Acre"],
     },
   ],
+  reports: [],
   report: {
     name: "",
     commodity: "",
     year: "",
-    body: {
-      seedList: [],
-      chemList: [],
-      fertList: [],
-      truckingList: [],
-      fuelList: [],
-      insList: [],
-      misc: [],
-    },
+    seedList: [],
+    chemList: [],
+    fertList: [],
+    truckingList: [],
+    fuelList: [],
+    insList: [],
+    misc: [],
     total: 0,
   },
 };
@@ -78,24 +76,25 @@ export const initialState = {
 
 const appReducer = (state, action) => {
   // console.log(action, state)
-  // console.log(action)
+  // console.log(action);
   switch (action.type) {
-    case "UPDATE-REPORT":
-      console.log(action);
-      let obj = structuredClone(state.report);
-      obj[action.name] = action.load;
+    case "ADD-ROW":
+      // console.log(action);
+      let arr = structuredClone(state.report[action.name]);
+      arr.push(action.load);
+      let obj = { ...state.report, [action.name]: arr };
       return {
         ...state,
         report: obj,
       };
     case "ADD-STR":
-      console.log(action);
+      // console.log(action);
       return {
         ...state,
         [action.name]: action.load,
       };
     case "SET-OBJ":
-      console.log(action);
+      // console.log(action);
       return {
         ...state,
         [action.name]: action.load,
@@ -106,7 +105,7 @@ const appReducer = (state, action) => {
         [action.name]: action.load,
       };
     case "UPDATE":
-      console.log(action);
+      // console.log(action);
       return {
         ...state,
         [action.name]: action.load,
