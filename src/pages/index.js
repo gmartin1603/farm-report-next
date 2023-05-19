@@ -1,27 +1,16 @@
 import { Inter } from "next/font/google";
-import SideBar from "./components/SideBar";
-import Header from "./components/Header";
-import useAuthHook from "@/firebase/authHook";
 import Login from "./components/Login";
 import { useEffect } from "react";
 import { useAppState } from "@/context/AppProvider";
-import Text from "./components/Text";
-import { getReports } from "@/firebase/firestore";
+import ReportSelect from "./components/ReportSelect";
 import Loading from "./components/Loading";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-  const user = useAuthHook();
-  const [{ reports, profile }, dispatch] = useAppState();
+  const [{ user, reports, profile, expenses }, dispatch] = useAppState();
 
-  useEffect(() => {
-    // console.log(profile);
-  }, [profile]);
-
-  useEffect(() => {}, []);
-
-  useEffect(() => {
+  const getYears = () => {
     let years = new Array(6);
     let year = new Date().getFullYear();
     year -= 2;
@@ -29,26 +18,30 @@ export default function Home() {
       years[i] = year + i;
     }
     // console.log(years)
-    dispatch({ type: "ADD-ARR", name: "years", load: years });
-  }, []);
+    dispatch({ type: "SET", name: "years", load: years });
+  };
+
+  // useEffect(() => {
+  //   console.log(user, reports, profile, expenses);
+  // }, [user, reports, profile, expenses]);
+
+  useEffect(() => {
+    console.log(expenses);
+  }, [expenses]);
+
+  useEffect(() => {
+    if (user) {
+      getYears();
+    }
+  }, [user]);
 
   const styles = {
     main: `min-h-screen w-screen flex flex-col items-center justify-start`,
     button: `h-fit bg-green-500 hover:bg-green-700 text-white font-bold mt-2 py-2 px-4 rounded`,
   };
   return (
-    <main className={styles.main}>
-      {user ? (
-        profile.uid ? (
-          <div className="flex justify-center w-full p-10">
-            <Text />
-          </div>
-        ) : (
-          <Loading />
-        )
-      ) : (
-        <Login />
-      )}
-    </main>
+    <div className={styles.main}>
+      {user ? profile.uid ? <ReportSelect /> : <Loading /> : <Login />}
+    </div>
   );
 }

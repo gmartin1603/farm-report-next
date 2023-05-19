@@ -1,16 +1,19 @@
 import React from "react";
 import { auth } from "../../firebase/firebaseApp";
 import { useAppState } from "@/context/AppProvider";
+import { useRouter } from "next/router";
 
-function Header({ user }) {
+function Header({}) {
   const [{ profile }, dispatch] = useAppState();
+
+  const router = useRouter();
 
   const signOut = () => {
     auth.signOut();
   };
 
   const styles = {
-    main: `sticky top-0 h-[70px] w-full bg-blue-800 flex items-end justify-between pb-[5px] pr-10 text-white font-semibold`,
+    main: `sticky top-0 h-[70px] w-full bg-blue-800 flex items-end justify-between pb-[5px] pr-10 text-white font-semibold print:hidden`,
     logo: `cursor-pointer w-[20%] min-w-fit bg-blue-600 ml-4 px-5 pt-1 flex flex-col items-start justify-start rounded-tr-lg rounded-bl-lg`,
     h1: `text-xl font-semibold `,
     p: `text-sm font-light italic`,
@@ -22,7 +25,10 @@ function Header({ user }) {
   return (
     <div className={styles.main}>
       <div
-        onClick={() => dispatch({ type: "SET-OBJ", name: "report", load: {} })}
+        onClick={() => {
+          dispatch({ type: "SET-OBJ", name: "report", load: {} });
+          router.push("/");
+        }}
         className={styles.logo}
       >
         <h1 className={styles.h1}>Farm Report</h1>
