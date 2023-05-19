@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAppState } from "@/context/AppProvider";
 import Select from "./inputs/Select";
 
-function Row({ head, arr, removeItem }) {
+function Row({ head, arr, removeItem, addItem }) {
   const initialState = {
     name: "",
     price: 0,
@@ -51,7 +51,8 @@ function Row({ head, arr, removeItem }) {
     let obj = structuredClone(newRow);
     obj["id"] = Date.now();
     obj["arr"] = head;
-    dispatch({ type: "ADD-ROW", name: expense.id, load: obj });
+    addItem(head, obj);
+    // Clear form
     setNewRow({});
     setExpense(initialState);
   };

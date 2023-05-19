@@ -3,12 +3,15 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import Row from "../components/Row";
 import useCollectionListener from "@/firebase/collectionListener";
+import { getReport } from "@/firebase/firestore";
 
 const id = ({}) => {
   const url = "http://localhost:5001/farm-report-86ac2/us-central1/saveReport";
   const [disabled, setDisabled] = useState(false);
+  const [reportTemplate, setReportTemplate] = useState({});
+  const [report, setReport] = useState({});
 
-  const [{ report, reports, user }, dispatch] = useAppState();
+  const [{ reports, user }, dispatch] = useAppState();
 
   useCollectionListener("expenses");
 
@@ -17,24 +20,31 @@ const id = ({}) => {
   const { id } = router.query;
 
   useEffect(() => {
-    if (id) {
-      let arr = reports.filter((item) => item.id === id);
-      if (arr.length > 0) {
-        console.log(arr[0]);
-        dispatch({ type: "SET", name: "report", load: arr[0] });
-      } else {
-        router.push("/");
-      }
-    } else {
-      dispatch({ type: "SET", name: "report", load: {} });
+    if (user && id) {
+      getReport(user, id)
+        .then((res) => {
+          console.log(res);
+          // Keep track of changes
+          setReport(res);
+          // Control object
+          setReportTemplate(res);
+        })
+        .catch((err) => console.log(err));
     }
-  }, [id]);
+  }, [id, user]);
 
   const removeItem = (name, id) => {
     let arr = report[name];
     let newArr = arr.filter((item) => item.id !== id);
     let obj = { ...report, [name]: newArr };
-    dispatch({ type: "SET", name: "report", load: obj });
+    setReport(obj);
+  };
+
+  const addItem = (name, obj) => {
+    let arr = report[name];
+    arr.push(obj);
+    let newObj = { ...report, [name]: arr };
+    setReport(newObj);
   };
 
   const handleSave = async () => {
@@ -86,7 +96,12 @@ const id = ({}) => {
         {buildCategories().map((cat) => {
           return (
             <div key={cat.id}>
-              <Row head={cat.name} arr={cat.arr} removeItem={removeItem} />
+              <Row
+                head={cat.name}
+                arr={cat.arr}
+                removeItem={removeItem}
+                addItem={addItem}
+              />
             </div>
           );
         })}

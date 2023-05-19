@@ -26,7 +26,6 @@ function Header({}) {
     <div className={styles.main}>
       <div
         onClick={() => {
-          dispatch({ type: "SET-OBJ", name: "report", load: {} });
           router.push("/");
         }}
         className={styles.logo}
