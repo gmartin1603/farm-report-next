@@ -5,7 +5,7 @@ import Row from "../components/Row";
 import useCollectionListener from "@/firebase/collectionListener";
 import { getReport } from "@/firebase/firestore";
 
-const id = ({}) => {
+const Id = ({}) => {
   const url = "http://localhost:5001/farm-report-86ac2/us-central1/saveReport";
   const [disabled, setDisabled] = useState(false);
   const [reportTemplate, setReportTemplate] = useState({});
@@ -17,11 +17,11 @@ const id = ({}) => {
 
   const router = useRouter();
 
-  const { id } = router.query;
+  const { Id } = router.query;
 
   useEffect(() => {
-    if (user && id) {
-      getReport(user, id)
+    if (user && Id) {
+      getReport(user, Id)
         .then((res) => {
           console.log(res);
           // Keep track of changes
@@ -31,7 +31,7 @@ const id = ({}) => {
         })
         .catch((err) => console.log(err));
     }
-  }, [id, user]);
+  }, [Id, user]);
 
   const removeItem = (name, id) => {
     let arr = report[name];
@@ -133,4 +133,4 @@ const id = ({}) => {
   );
 };
 
-export default id;
+export default Id;

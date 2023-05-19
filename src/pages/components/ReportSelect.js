@@ -64,7 +64,7 @@ function ReportSelect() {
             <div className="col-3">
               <Link
                 className={`${styles.button} bg-blue-500`}
-                href={{ pathname: "/reports/[id]", query: { id: report.id } }}
+                href={{ pathname: "/reports/[Id]", query: { Id: report.id } }}
               >
                 {" "}
                 Select{" "}

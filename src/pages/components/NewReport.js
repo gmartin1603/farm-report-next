@@ -185,7 +185,7 @@ function NewReport() {
                 <label htmlFor="qty">Unit of Measure</label>
                 <ul>
                   {units.map((uni) => (
-                    <li>
+                    <li key={uni}>
                       <label for={uni}> {uni} </label>
                       <input
                         name={uni}
