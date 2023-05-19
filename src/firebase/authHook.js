@@ -1,11 +1,10 @@
 import { onAuthStateChanged } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { auth, db } from "./firebaseApp";
 import { useAppState } from "@/context/AppProvider";
 import { doc, getDoc } from "firebase/firestore";
 
 const useAuthHook = () => {
-  const [user, setUser] = useState("");
   const [{}, dispatch] = useAppState();
 
   const updateAuth = async () => {
@@ -13,28 +12,27 @@ const useAuthHook = () => {
       // console.log("AuthStateChanged Ran")
       if (userObj) {
         console.log(`${userObj.email} signed in`);
-        setUser(userObj.uid);
+        dispatch({ type: "SET", name: "user", load: userObj.uid });
         await getDoc(doc(db, userObj.uid, "profile")).then((doc) => {
           let profile = structuredClone(doc.data());
           profile["uid"] = userObj.uid;
-          dispatch({ type: "SET-OBJ", name: "profile", load: profile });
+          dispatch({ type: "SET", name: "profile", load: profile });
         });
       } else {
-        setUser(false);
-        dispatch({ type: "SET-OBJ", name: "profile", load: { dName: "User" } });
+        dispatch({ type: "SET", name: "profile", load: { dName: "User" } });
         console.log(`No one is signed in`);
       }
     });
   };
   useEffect(() => {
-    window.addEventListener("authState", updateAuth);
+    window.addEventListener("subscribe", updateAuth);
     updateAuth();
     return () => {
-      window.removeEventListener("authState", updateAuth);
+      window.removeEventListener("subscribe", updateAuth);
     };
   }, []);
 
-  return user;
+  return;
 };
 
 export default useAuthHook;

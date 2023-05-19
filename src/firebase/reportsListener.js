@@ -28,7 +28,7 @@ const useReportsListener = () => {
         });
       }
       setReports(arr);
-      dispatch({ type: "SET-OBJ", name: "reports", load: arr });
+      dispatch({ type: "SET", name: "reports", load: arr });
     });
     if (profile.uid) {
       return () => unsubscribe();
