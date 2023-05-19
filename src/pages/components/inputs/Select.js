@@ -1,6 +1,6 @@
 import React from "react";
 
-const Select = ({ data, handleChange, value }) => {
+const Select = ({ data, handleChange, value, name }) => {
   const styles = {
     main: `w-full text-black font-bold rounded p-1`,
     label: `text-white`,
@@ -13,6 +13,7 @@ const Select = ({ data, handleChange, value }) => {
       {/* <h3 className={styles.label}> {data.label} </h3> */}
       <select
         id={data.id}
+        name={name}
         className={styles.select}
         onChange={(e) => handleChange(e)}
         value={value ? value : data.label}

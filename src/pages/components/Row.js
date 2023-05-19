@@ -1,19 +1,75 @@
-import React from "react";
-import Item from "./Item";
+import React, { useEffect, useState } from "react";
 import { useAppState } from "@/context/AppProvider";
+import Select from "./inputs/Select";
 
 function Row({ head, arr, removeItem }) {
-  const [{ report }, dispatch] = useAppState();
+  const initialState = {
+    name: "",
+    price: 0,
+    qty: 0,
+    total: 0,
+  };
+  const [{ expenses, report }, dispatch] = useAppState();
+
+  const [expense, setExpense] = useState({});
+  const [newRow, setNewRow] = useState(initialState);
+
+  // useEffect(() => {
+  //   console.log(expense);
+  //   console.log(newRow);
+  // }, [expense, newRow]);
+
+  useEffect(() => {
+    expenses.forEach((expense) => {
+      if (expense.id === head) {
+        setExpense(expense);
+      }
+    });
+  }, [head, expenses]);
+
+  const handleChange = (e) => {
+    console.log(e.target.value);
+    switch (e.target.name) {
+      case "name":
+        let option = expense.options.find(
+          (obj) => obj.label === e.target.value
+        );
+        console.log(option);
+        setNewRow((prev) => ({
+          ...prev,
+          name: e.target.value,
+          price: option.price,
+        }));
+        break;
+      default:
+        setNewRow((prev) => ({ ...prev, [e.target.id]: e.target.value }));
+    }
+  };
+
+  const handleAdd = (e) => {
+    e.preventDefault();
+    let obj = structuredClone(newRow);
+    obj["id"] = Date.now();
+    obj["arr"] = head;
+    dispatch({ type: "ADD-ROW", name: expense.id, load: obj });
+    setNewRow({});
+    setExpense(initialState);
+  };
 
   const styles = {
-    main: ``,
+    main: `w-full flex flex-col text-center my-[10px]`,
+    print: `print:hidden`,
+    heading: `font-bold text-lg underline`,
+    lineItem: `w-full flex justify-between my-[4px]`,
+    addBtn: `w-max font-bold text-lg bg-green-500 text-white px-2 rounded hover:bg-green-700 print:hidden`,
+    deleteBtn: `w-max font-semi text-lg bg-red-500 text-white px-2 rounded hover:bg-red-700 print:hidden`,
   };
   return (
-    <div className={"w-full flex flex-col text-center my-[10px]"}>
-      <h5 className={`font-bold text-lg underline`}>{head.toUpperCase()}</h5>
-      {report[arr].length > 0 &&
-        report[arr].map((obj) => (
-          <div key={obj.id} className="w-full flex justify-between my-[4px]">
+    <div className={`${styles.main} ${arr.length === 0 && styles.print}`}>
+      <h5 className={styles.heading}>{head.toUpperCase()}</h5>
+      {arr.length > 0 &&
+        arr.map((obj) => (
+          <div key={obj.id} className={styles.lineItem}>
             <div className="font-semibold">
               <p>{obj.name}</p>
             </div>
@@ -39,7 +95,7 @@ function Row({ head, arr, removeItem }) {
             </div>
             <div id="button" className="col">
               <button
-                className="bg-red-500 text-white px-2 rounded hover:bg-red-700"
+                className={styles.deleteBtn}
                 onClick={(e) => {
                   e.preventDefault;
                   removeItem(obj.arr, obj.id);
@@ -50,17 +106,64 @@ function Row({ head, arr, removeItem }) {
             </div>
           </div>
         ))}
+      {newRow.id ? (
+        <form onSubmit={(e) => handleAdd(e)}>
+          <div className="w-full flex justify-between my-[4px]">
+            <Select
+              handleChange={handleChange}
+              data={{
+                id: "name",
+                label: "Prouduct",
+                options: expense.options,
+              }}
+              name="name"
+              value={newRow.name}
+            />
+            <div className="flex">
+              <input
+                type="number"
+                placeholder="Quantity"
+                value={newRow.qty}
+                onChange={(e) => setNewRow({ ...newRow, qty: e.target.value })}
+              />
+            </div>
+            <Select
+              handleChange={handleChange}
+              data={{ id: "unit", label: "Unit", options: expense.units }}
+              value={newRow.unit}
+            />
+            <div className="col">
+              <input
+                type="float"
+                placeholder={"Price"}
+                value={newRow.price}
+                onChange={(e) =>
+                  setNewRow({ ...newRow, price: e.target.value })
+                }
+              />
+            </div>
+            <div id="button" className="col">
+              <button
+                className="bg-green-500 text-white px-2 rounded hover:bg-green-700"
+                type="submit"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </form>
+      ) : (
+        <button
+          id="type"
+          onClick={() => setNewRow((prev) => ({ ...prev, id: Date.now() }))}
+          className={styles.addBtn}
+        >
+          {" "}
+          +{" "}
+        </button>
+      )}
     </div>
   );
 }
 
 export default Row;
-const Main = `
-    h5 {
-        border-bottom: 1px, solid;
-    }
-`;
-const Expense = `
-  display: flex;
-  flex-direction: column;
-`;
