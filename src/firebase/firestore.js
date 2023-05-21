@@ -12,6 +12,23 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebaseApp";
 
+export const getReport = async (coll, id) => {
+  console.log("getReport Ran", coll, id);
+  let report = {};
+  await getDoc(doc(db, coll, "profile", "reports", id))
+    .then((doc) => {
+      report = doc.data();
+      return new Promise((resolve, reject) => {
+        resolve(report);
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  // console.log(report);
+  return report;
+};
+
 export const getData = (coll, func) => {
   let arr = [];
   collection(coll)

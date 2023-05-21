@@ -10,19 +10,6 @@ export const initialState = {
   optionList: [],
   expenses: [],
   reports: [],
-  report: {
-    name: "",
-    commodity: "",
-    year: "",
-    seedList: [],
-    chemList: [],
-    fertList: [],
-    truckingList: [],
-    fuelList: [],
-    insList: [],
-    misc: [],
-    total: 0,
-  },
 };
 
 const appReducer = (state, action) => {
