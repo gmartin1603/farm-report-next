@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAppState } from "@/context/AppProvider";
 import Select from "./inputs/Select";
+import { useRouter } from "next/router";
 
 function Row({ head, arr, removeItem, addItem }) {
   const initialState = {
@@ -13,6 +14,8 @@ function Row({ head, arr, removeItem, addItem }) {
 
   const [expense, setExpense] = useState({});
   const [newRow, setNewRow] = useState(initialState);
+
+  const router = useRouter();
 
   // useEffect(() => {
   //   console.log(expense);
@@ -65,6 +68,9 @@ function Row({ head, arr, removeItem, addItem }) {
     addBtn: `w-max font-bold text-lg bg-green-500 text-white px-2 rounded hover:bg-green-700 print:hidden`,
     deleteBtn: `w-max font-semi text-lg bg-red-500 text-white px-2 rounded hover:bg-red-700 print:hidden`,
   };
+  if (!router.isFallback && !arr) {
+    return <h1>Page Not Found</h1>;
+  }
   return (
     <div className={`${styles.main} ${arr.length === 0 && styles.print}`}>
       <h5 className={styles.heading}>{head.toUpperCase()}</h5>

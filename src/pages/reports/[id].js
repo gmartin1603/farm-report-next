@@ -85,6 +85,10 @@ const Id = ({}) => {
     totalCont: `w-full flex justify-between items-center`,
   };
 
+  if (!router.isFallback && !Id) {
+    return <h1>Page Not Found</h1>;
+  }
+
   return (
     <div className={styles.main}>
       <div className={styles.reportCont}>

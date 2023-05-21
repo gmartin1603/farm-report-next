@@ -1,12 +1,17 @@
 import React from "react";
+import { useRouter } from "next/router";
 
 const Select = ({ data, handleChange, value, name }) => {
+  const router = useRouter();
   const styles = {
     main: `w-full text-black font-bold rounded p-1`,
     label: `text-white`,
     select: `w-full`,
     option: ``,
   };
+  if (!router.isFallback && !data) {
+    return <h1>Page Not Found</h1>;
+  }
 
   return (
     <div className={styles.main}>
