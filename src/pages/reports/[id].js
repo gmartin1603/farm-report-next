@@ -5,15 +5,17 @@ import useCollectionListener from "@/firebase/collectionListener";
 import { getReport } from "@/firebase/firestore";
 import Row from "../components/Row";
 
-// const Row = dynamic(() => import("../components/Row"), { ssr: false });
-
 const Id = ({}) => {
-  const url = "http://localhost:5001/farm-report-86ac2/us-central1/saveReport";
   const [disabled, setDisabled] = useState(false);
   const [reportTemplate, setReportTemplate] = useState({});
   const [report, setReport] = useState({});
 
   const [{ reports, user, expenses }, dispatch] = useAppState();
+
+  let url = "";
+  if (process.env.NODE_ENV === "development") {
+    url = "http://localhost:5001/farm-report-86ac2/us-central1/saveReport";
+  }
 
   useCollectionListener("expenses");
 

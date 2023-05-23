@@ -11,7 +11,10 @@ function NoSSRReportSelect() {
   const [filtered, setFiltered] = useState([]);
   const [disabled, setDisabled] = useState(false);
 
-  let url = "http://localhost:5001/farm-report-86ac2/us-central1/saveReport";
+  let url = "";
+  if (process.env.NODE_ENV === "development") {
+    url = "http://localhost:5001/farm-report-86ac2/us-central1/saveReport";
+  }
 
   useReportsListener();
 

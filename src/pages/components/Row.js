@@ -22,6 +22,11 @@ function NoSSRRow({ id, head, arr, removeItem, addItem }) {
 
   const router = useRouter();
 
+  let url = "";
+  if (process.env.NODE_ENV === "development") {
+    url = "http://localhost:5001/farm-report-86ac2/us-central1/saveItem";
+  }
+
   // useEffect(() => {
   //   // console.log(expense);
   //   console.log(newRow);
@@ -94,13 +99,10 @@ function NoSSRRow({ id, head, arr, removeItem, addItem }) {
           newExpense.units.push(newRow.unit);
         }
         console.log(newExpense);
-        await fetch(
-          "http://127.0.0.1:5001/farm-report-86ac2/us-central1/saveItem",
-          {
-            method: "POST",
-            body: JSON.stringify({ coll: user, item: newExpense }),
-          }
-        )
+        await fetch(url, {
+          method: "POST",
+          body: JSON.stringify({ coll: user, item: newExpense }),
+        })
           .then((res) => res.json())
           .then((data) => console.log(JSON.parse(data).message));
       }
