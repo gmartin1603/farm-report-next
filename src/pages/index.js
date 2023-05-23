@@ -2,8 +2,8 @@ import { Inter } from "next/font/google";
 import Login from "./components/Login";
 import { useEffect } from "react";
 import { useAppState } from "@/context/AppProvider";
-import ReportSelect from "./components/ReportSelect";
 import Loading from "./components/Loading";
+import ReportSelect from "./components/ReportSelect";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,19 +21,11 @@ export default function Home() {
     dispatch({ type: "SET", name: "years", load: years });
   };
 
-  // useEffect(() => {
-  //   console.log(user, reports, profile, expenses);
-  // }, [user, reports, profile, expenses]);
-
   useEffect(() => {
-    console.log(expenses);
-  }, [expenses]);
-
-  useEffect(() => {
-    if (user) {
+    if (profile.id) {
       getYears();
     }
-  }, [user]);
+  }, [profile]);
 
   const styles = {
     main: `min-h-screen w-screen flex flex-col items-center justify-start`,

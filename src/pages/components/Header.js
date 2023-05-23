@@ -4,9 +4,33 @@ import { useAppState } from "@/context/AppProvider";
 import { useRouter } from "next/router";
 
 function Header({}) {
-  const [{ profile }, dispatch] = useAppState();
+  const [{ profile, reports }, dispatch] = useAppState();
+
+  const url = "http://localhost:5001/farm-report-86ac2/us-central1/writeData";
 
   const router = useRouter();
+
+  const auxCall = () => {
+    let names = [];
+    reports.map((report) => {
+      if (!names.includes(report.name)) {
+        names.push(report.name);
+      }
+    });
+
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        coll: profile.uid,
+        data: names,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(JSON.parse(data).message);
+      })
+      .catch((err) => console.log(err));
+  };
 
   const signOut = () => {
     auth.signOut();
@@ -40,6 +64,9 @@ function Header({}) {
           </nav> */}
       {profile.uid && (
         <>
+          {/* <button className={styles.logo} onClick={() => auxCall()}>
+            Aux
+          </button> */}
           <h1 className={styles.h1}>Welcome {profile.dName}!</h1>
           <button className={styles.button} onClick={() => signOut()}>
             Log Out

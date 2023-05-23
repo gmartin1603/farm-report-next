@@ -10,12 +10,13 @@ const MainLayout = ({ children }) => {
   return (
     <>
       <Header />
-      <div className="flex justify-end p-10">
+      {children}
+      {/* <div className="flex justify-end p-10">
         {profile.uid && <SideBar />}
         <main className="flex justify-center w-full max-w-[70%] print:max-w-full">
           {children}
         </main>
-      </div>
+      </div> */}
     </>
   );
 };
