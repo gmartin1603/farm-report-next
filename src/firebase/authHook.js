@@ -13,13 +13,18 @@ const useAuthHook = () => {
       if (userObj) {
         console.log(`${userObj.email} signed in`);
         dispatch({ type: "SET", name: "user", load: userObj.uid });
-        await getDoc(doc(db, userObj.uid, "profile")).then((doc) => {
-          let profile = structuredClone(doc.data());
-          profile["uid"] = userObj.uid;
-          dispatch({ type: "SET", name: "profile", load: profile });
-        });
+        const profile = await getDoc(doc(db, userObj.uid, "profile"));
+        if (profile.exists()) {
+          console.log(profile.data());
+          dispatch({
+            type: "SET",
+            name: "profile",
+            load: { ...profile.data(), uid: userObj.uid },
+          });
+        }
       } else {
         dispatch({ type: "SET", name: "profile", load: { dName: "User" } });
+        dispatch({ type: "SET", name: "user", load: null });
         console.log(`No one is signed in`);
       }
     });
