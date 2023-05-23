@@ -1,9 +1,11 @@
 import { useAppState } from "@/context/AppProvider";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import Row from "../components/Row";
 import useCollectionListener from "@/firebase/collectionListener";
 import { getReport } from "@/firebase/firestore";
+import Row from "../components/Row";
+
+// const Row = dynamic(() => import("../components/Row"), { ssr: false });
 
 const Id = ({}) => {
   const url = "http://localhost:5001/farm-report-86ac2/us-central1/saveReport";
@@ -11,7 +13,7 @@ const Id = ({}) => {
   const [reportTemplate, setReportTemplate] = useState({});
   const [report, setReport] = useState({});
 
-  const [{ reports, user }, dispatch] = useAppState();
+  const [{ reports, user, expenses }, dispatch] = useAppState();
 
   useCollectionListener("expenses");
 
@@ -41,7 +43,7 @@ const Id = ({}) => {
   };
 
   const addItem = (name, obj) => {
-    let arr = report[name];
+    let arr = report[name] || [];
     arr.push(obj);
     let newObj = { ...report, [name]: arr };
     setReport(newObj);
@@ -65,29 +67,31 @@ const Id = ({}) => {
 
   const buildCategories = () => {
     let arr = [];
-    Object.keys(report).map((key) => {
-      if (typeof report[key] === "object") {
-        arr.push({ id: key, name: key, arr: report[key] });
-      }
+    expenses.map((expense) => {
+      arr.push({
+        id: expense.id,
+        name: expense.label,
+        arr: report[expense.id] || [],
+      });
     });
     return arr;
   };
 
   const styles = {
-    main: `w-full rounded p-[4%] m-[4%] shadow-inner shadow-blue-[500] text-black bg-white flex`,
+    main: `w-full flex flex-col items-center justify-start`,
     title: `text-2xl font-bold`,
     titleCont: `w-full pb-2 mb-5 border-b-4 border-black`,
     spacer: `w-full border-b-2 border-black my-2`,
     filterCont: `w-full h-full flex flex-col items-center`,
-    reportCont: `w-full flex flex-col items-between justify-start`,
+    reportCont: `w-full max-w-[1000px] rounded p-[4%] m-[4%] text-black bg-white flex flex flex-col items-between justify-start`,
     button: `text-xl font-semibold px-1 rounded hover:text-white border-2 border-transparent hover:border-black mx-[4px]`,
     btnCont: `w-full flex justify-center mt-10 print:hidden`,
     totalCont: `w-full flex justify-between items-center`,
   };
 
-  if (!router.isFallback && !Id) {
-    return <h1>Page Not Found</h1>;
-  }
+  // if (!router.isFallback && !Id) {
+  //   return <h1>Page Not Found</h1>;
+  // }
 
   return (
     <div className={styles.main}>
@@ -101,6 +105,7 @@ const Id = ({}) => {
           return (
             <div key={cat.id}>
               <Row
+                id={cat.id}
                 head={cat.name}
                 arr={cat.arr}
                 removeItem={removeItem}
