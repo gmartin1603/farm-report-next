@@ -2,15 +2,20 @@ import React, { useEffect, useState } from "react";
 import { useAppState } from "@/context/AppProvider";
 import Select from "./inputs/Select";
 import { useRouter } from "next/router";
+import Input from "./inputs/Input";
+import dynamic from "next/dynamic";
 
-function Row({ head, arr, removeItem, addItem }) {
+function NoSSRRow({ id, head, arr, removeItem, addItem }) {
   const initialState = {
     name: "",
+    unit: "",
     price: 0,
     qty: 0,
     total: 0,
+    newName: false,
+    newUnit: false,
   };
-  const [{ expenses, report }, dispatch] = useAppState();
+  const [{ expenses, report, user }, dispatch] = useAppState();
 
   const [expense, setExpense] = useState({});
   const [newRow, setNewRow] = useState(initialState);
@@ -18,13 +23,13 @@ function Row({ head, arr, removeItem, addItem }) {
   const router = useRouter();
 
   // useEffect(() => {
-  //   console.log(expense);
+  //   // console.log(expense);
   //   console.log(newRow);
   // }, [expense, newRow]);
 
   useEffect(() => {
     expenses.forEach((expense) => {
-      if (expense.id === head) {
+      if (expense.id === id) {
         setExpense(expense);
       }
     });
@@ -37,40 +42,82 @@ function Row({ head, arr, removeItem, addItem }) {
         let option = expense.options.find(
           (obj) => obj.label === e.target.value
         );
-        console.log(option);
-        setNewRow((prev) => ({
-          ...prev,
-          name: e.target.value,
-          price: option.price,
-        }));
+        if (!option) {
+          setNewRow((prev) => ({
+            ...prev,
+            newName: true,
+          }));
+        } else {
+          console.log(option);
+          setNewRow((prev) => ({
+            ...prev,
+            name: e.target.value,
+            price: option.price,
+          }));
+        }
+        break;
+      case "unit":
+        if (!expense.units.includes(e.target.value)) {
+          setNewRow((prev) => ({
+            ...prev,
+            newUnit: true,
+          }));
+        } else {
+          setNewRow((prev) => ({
+            ...prev,
+            unit: e.target.value,
+          }));
+        }
         break;
       default:
         setNewRow((prev) => ({ ...prev, [e.target.id]: e.target.value }));
     }
   };
 
-  const handleAdd = (e) => {
+  const handleAdd = async (e) => {
     e.preventDefault();
     let obj = structuredClone(newRow);
     obj["id"] = Date.now();
-    obj["arr"] = head;
-    addItem(head, obj);
+    obj["arr"] = id;
+    addItem(id, obj);
+    if (newRow.newName || newRow.newUnit) {
+      const prompt = confirm("Save new line item details?");
+      if (prompt) {
+        let newExpense = { ...expense };
+        if (newRow.newName) {
+          newExpense.options.push({
+            label: newRow.name,
+            price: newRow.price,
+          });
+        }
+        if (!newExpense.units.includes(newRow.unit)) {
+          newExpense.units.push(newRow.unit);
+        }
+        console.log(newExpense);
+        await fetch(
+          "http://127.0.0.1:5001/farm-report-86ac2/us-central1/saveItem",
+          {
+            method: "POST",
+            body: JSON.stringify({ coll: user, item: newExpense }),
+          }
+        )
+          .then((res) => res.json())
+          .then((data) => console.log(JSON.parse(data).message));
+      }
+    }
     // Clear form
-    setNewRow({});
-    setExpense(initialState);
+    setNewRow(initialState);
   };
 
   const styles = {
     main: `w-full flex flex-col text-center my-[10px]`,
     print: `print:hidden`,
     heading: `font-bold text-lg underline`,
-    lineItem: `w-full flex justify-between my-[4px]`,
+    lineItem: `w-full flex justify-between my-[4px] border border-gray-400 rounded-md p-2 print:my-0 print:border-none print:rounded-none print:p-0`,
     addBtn: `w-max font-bold text-lg bg-green-500 text-white px-2 rounded hover:bg-green-700 print:hidden`,
-    deleteBtn: `w-max font-semi text-lg bg-red-500 text-white px-2 rounded hover:bg-red-700 print:hidden`,
+    deleteBtn: `w-max font-semibold bg-red-500 text-white px-2 rounded hover:bg-red-700 print:hidden`,
   };
-  if (!router.isFallback && !arr) {
-    return <h1>Page Not Found</h1>;
-  }
+
   return (
     <div className={`${styles.main} ${arr.length === 0 && styles.print}`}>
       <h5 className={styles.heading}>{head.toUpperCase()}</h5>
@@ -114,49 +161,87 @@ function Row({ head, arr, removeItem, addItem }) {
           </div>
         ))}
       {newRow.id ? (
-        <form onSubmit={(e) => handleAdd(e)}>
-          <div className="w-full flex justify-between my-[4px]">
-            <Select
-              handleChange={handleChange}
-              data={{
-                id: "name",
-                label: "Prouduct",
-                options: expense.options,
+        <form className={styles.lineItem} onSubmit={(e) => handleAdd(e)}>
+          <div className="w-full flex justify-around my-[4px]">
+            <button
+              type="button"
+              className={styles.deleteBtn}
+              onClick={(e) => {
+                e.preventDefault;
+                setNewRow(initialState);
               }}
-              name="name"
-              value={newRow.name}
-            />
-            <div className="flex">
-              <input
-                type="number"
-                placeholder="Quantity"
-                value={newRow.qty}
-                onChange={(e) => setNewRow({ ...newRow, qty: e.target.value })}
-              />
-            </div>
-            <Select
-              handleChange={handleChange}
-              data={{ id: "unit", label: "Unit", options: expense.units }}
-              value={newRow.unit}
-            />
-            <div className="col">
-              <input
-                type="float"
-                placeholder={"Price"}
-                value={newRow.price}
-                onChange={(e) =>
-                  setNewRow({ ...newRow, price: e.target.value })
+            >
+              X
+            </button>
+            {newRow.newName ? (
+              <Input
+                type="text"
+                label="New Product:"
+                row
+                value={newRow.name}
+                handleChange={(e) =>
+                  setNewRow((prev) => ({ ...prev, name: e.target.value }))
                 }
+                id="name"
               />
-            </div>
-            <div id="button" className="col">
-              <button
-                className="bg-green-500 text-white px-2 rounded hover:bg-green-700"
-                type="submit"
-              >
-                Add
-              </button>
-            </div>
+            ) : (
+              <Select
+                handleChange={handleChange}
+                data={{
+                  id: "name",
+                  label: "Prouduct",
+                  options: [...expense.options, { label: "Add New", price: 0 }],
+                }}
+                name="name"
+                value={newRow.name}
+              />
+            )}
+            <Input
+              type="float"
+              label="Quantity:"
+              row
+              value={newRow.qty}
+              handleChange={(e) =>
+                setNewRow((prev) => ({ ...prev, qty: e.target.value }))
+              }
+              id="qty"
+            />
+            {newRow.newUnit ? (
+              <Input
+                type="text"
+                label="New Unit:"
+                row
+                value={newRow.unit}
+                handleChange={(e) =>
+                  setNewRow((prev) => ({ ...prev, unit: e.target.value }))
+                }
+                id="unit"
+              />
+            ) : (
+              <Select
+                handleChange={handleChange}
+                name="unit"
+                data={{
+                  id: "unit",
+                  label: "Unit",
+                  options: [...expense.units, "Add New"],
+                }}
+                value={newRow.unit}
+              />
+            )}
+            <Input
+              type="float"
+              label="Price per unit:"
+              row
+              value={newRow.price}
+              handleChange={(e) =>
+                setNewRow((prev) => ({ ...prev, price: e.target.value }))
+              }
+              id="price"
+            />
+            <button className={styles.addBtn} type="submit">
+              Add
+            </button>
           </div>
         </form>
       ) : (
@@ -172,5 +257,10 @@ function Row({ head, arr, removeItem, addItem }) {
     </div>
   );
 }
+
+// export it with SSR disabled
+const Row = dynamic(() => Promise.resolve(NoSSRRow), {
+  ssr: false,
+});
 
 export default Row;

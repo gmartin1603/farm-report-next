@@ -1,16 +1,17 @@
 import React from "react";
 import { useRouter } from "next/router";
+import dynamic from "next/dynamic";
 
-const Select = ({ data, handleChange, value, name }) => {
+const NoSSRSelect = ({ data, handleChange, value, name }) => {
   const router = useRouter();
   const styles = {
     main: `w-full text-black font-bold rounded p-1`,
     label: `text-white`,
-    select: `w-full`,
+    select: `w-full text-center max-w-[140px] border border-black rounded`,
     option: ``,
   };
   if (!router.isFallback && !data) {
-    return <h1>Page Not Found</h1>;
+    return <h1>ERROR: No data object</h1>;
   }
 
   return (
@@ -36,5 +37,10 @@ const Select = ({ data, handleChange, value, name }) => {
     </div>
   );
 };
+
+// export it with SSR disabled
+const Select = dynamic(() => Promise.resolve(NoSSRSelect), {
+  ssr: false,
+});
 
 export default Select;
