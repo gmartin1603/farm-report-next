@@ -22,7 +22,7 @@ function NoSSRRow({ id, head, arr, removeItem, addItem }) {
 
   const router = useRouter();
 
-  let url = "";
+  let url = "https://us-central1-farm-report-86ac2.cloudfunctions.net/saveItem";
   if (process.env.NODE_ENV === "development") {
     url = "http://localhost:5001/farm-report-86ac2/us-central1/saveItem";
   }
@@ -189,12 +189,12 @@ function NoSSRRow({ id, head, arr, removeItem, addItem }) {
             ) : (
               <Select
                 handleChange={handleChange}
-                data={{
-                  id: "name",
-                  label: "Prouduct",
-                  options: [...expense.options, { label: "Add New", price: 0 }],
-                }}
+                id="name"
                 name="name"
+                label="Prouduct"
+                options={
+                  [...expense.options, { label: "Add New", price: 0 }] || []
+                }
                 value={newRow.name}
               />
             )}
@@ -222,12 +222,10 @@ function NoSSRRow({ id, head, arr, removeItem, addItem }) {
             ) : (
               <Select
                 handleChange={handleChange}
+                id="unit"
+                label="Unit"
                 name="unit"
-                data={{
-                  id: "unit",
-                  label: "Unit",
-                  options: [...expense.units, "Add New"],
-                }}
+                options={[...expense.units, "Add New"] || []}
                 value={newRow.unit}
               />
             )}

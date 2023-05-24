@@ -11,7 +11,8 @@ function NoSSRReportSelect() {
   const [filtered, setFiltered] = useState([]);
   const [disabled, setDisabled] = useState(false);
 
-  let url = "";
+  let url =
+    "https://us-central1-farm-report-86ac2.cloudfunctions.net/saveReport";
   if (process.env.NODE_ENV === "development") {
     url = "http://localhost:5001/farm-report-86ac2/us-central1/saveReport";
   }
@@ -112,36 +113,24 @@ function NoSSRReportSelect() {
             name="name"
             label="Name"
             value={filter.name}
-            options={profile.names}
-            data={{
-              id: "name",
-              label: "Name",
-              options: [...profile.names, "Add New"],
-            }}
+            options={[...profile.names, "Add New"] || []}
+            id="name"
             handleChange={handleFilterChange}
           />
           <Select
             name="commodity"
             label="Commodity"
             value={filter.commodity}
-            options={profile.commodities}
-            data={{
-              id: "commodity",
-              label: "Commodity",
-              options: [...profile.commodities, "Add New"],
-            }}
+            options={[...profile.commodities, "Add New"] || []}
+            id="commodity"
             handleChange={handleFilterChange}
           />
           <Select
             name="year"
             label="Year"
             value={filter.year}
-            options={profile.years}
-            data={{
-              id: "year",
-              label: "Year",
-              options: [...years, "Add New"],
-            }}
+            options={[...years, "Add New"] || []}
+            id="year"
             handleChange={handleFilterChange}
           />
           <button

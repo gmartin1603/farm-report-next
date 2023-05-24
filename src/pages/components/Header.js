@@ -59,9 +59,9 @@ function Header({}) {
       </div>
       {profile.uid && (
         <>
-          <button className={styles.logo} onClick={() => auxCall()}>
+          {/* <button className={styles.logo} onClick={() => auxCall()}>
             Aux
-          </button>
+          </button> */}
           <h1 className={styles.h1}>Welcome {profile.dName}!</h1>
           <button className={styles.button} onClick={() => signOut()}>
             Log Out

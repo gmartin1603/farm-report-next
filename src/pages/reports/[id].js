@@ -12,7 +12,7 @@ const Id = ({}) => {
 
   const [{ reports, user, expenses }, dispatch] = useAppState();
 
-  let url = "";
+  let url = "https://us-central1-farm-report-86ac2.cloudfunctions.net/saveReport";
   if (process.env.NODE_ENV === "development") {
     url = "http://localhost:5001/farm-report-86ac2/us-central1/saveReport";
   }
