@@ -112,6 +112,7 @@ function Login(props) {
       <form className={styles.form} action="login-password">
         {authMethod && (
           <Input
+            data-cy="dName-input"
             type="text"
             id="dName"
             label="Name"
@@ -120,6 +121,7 @@ function Login(props) {
           />
         )}
         <Input
+          data-cy="email-input"
           type="email"
           id="email"
           label="Email"
@@ -127,6 +129,7 @@ function Login(props) {
           value={email}
         />
         <Input
+          data-cy="password-input"
           type="password"
           id="password"
           label="Password"
@@ -136,6 +139,7 @@ function Login(props) {
         {authMethod ? (
           <>
             <Input
+              data-cy="password2-input"
               type="password"
               id="password2"
               label="Confirm Password"
@@ -146,6 +150,7 @@ function Login(props) {
         ) : (
           <>
             <button
+              data-cy="login-btn"
               className={`${styles.button} ${
                 disabled ? styles.disabled : styles.active
               }`}
@@ -156,6 +161,7 @@ function Login(props) {
               Login
             </button>
             <button
+              data-cy="google-auth-btn"
               id="google"
               className={`${styles.button} ${styles.provider}`}
               onClick={(e) => handleClick(e)}
@@ -172,6 +178,7 @@ function Login(props) {
           </>
         )}
         <button
+          data-cy="submit-btn"
           id={authMethod ? "submit" : "newUser"}
           className={`${styles.button} ${
             authMethod
@@ -191,6 +198,7 @@ function Login(props) {
         {authMethod && (
           <>
             <button
+              data-cy="google-signup-btn"
               id="google"
               className={`${styles.button} ${styles.provider}`}
               onClick={(e) => handleClick(e)}
@@ -205,6 +213,7 @@ function Login(props) {
               Google Sign Up
             </button>
             <p
+              data-cy="login-link"
               className={styles.link}
               id="login"
               onClick={(e) => handleClick(e)}
