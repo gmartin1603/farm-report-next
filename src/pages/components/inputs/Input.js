@@ -12,7 +12,7 @@ const Input = (props) => {
   };
 
   return (
-    <div className={styles.main}>
+    <div data-cy={props.dataCy} className={styles.main}>
       <label className={styles.label} htmlFor={props.id}>
         {props.label}
       </label>

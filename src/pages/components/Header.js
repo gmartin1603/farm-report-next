@@ -57,13 +57,16 @@ function Header({}) {
         <h1 className={styles.h1}>Farm Report</h1>
         <p className={styles.p}>Agricultural expense reports made simple</p>
       </div>
-      {profile.uid && (
+      { (
         <>
           {/* <button className={styles.logo} onClick={() => auxCall()}>
             Aux
           </button> */}
           <h1 className={styles.h1}>Welcome {profile.dName}!</h1>
-          <button className={styles.button} onClick={() => signOut()}>
+          <button
+          data-cy="log-out-btn" 
+          className={styles.button} 
+          onClick={() => signOut()}>
             Log Out
           </button>
         </>

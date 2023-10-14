@@ -112,7 +112,7 @@ function Login(props) {
       <form className={styles.form} action="login-password">
         {authMethod && (
           <Input
-            data-cy="dName-input"
+            dataCy="dName-input"
             type="text"
             id="dName"
             label="Name"
@@ -121,7 +121,7 @@ function Login(props) {
           />
         )}
         <Input
-          data-cy="email-input"
+          dataCy="email-input"
           type="email"
           id="email"
           label="Email"
@@ -129,7 +129,7 @@ function Login(props) {
           value={email}
         />
         <Input
-          data-cy="password-input"
+          dataCy="password-input"
           type="password"
           id="password"
           label="Password"
@@ -139,7 +139,7 @@ function Login(props) {
         {authMethod ? (
           <>
             <Input
-              data-cy="password2-input"
+              dataCy="password2-input"
               type="password"
               id="password2"
               label="Confirm Password"
@@ -198,7 +198,7 @@ function Login(props) {
         {authMethod && (
           <>
             <button
-              data-cy="google-signup-btn"
+              dataCy="google-signup-btn"
               id="google"
               className={`${styles.button} ${styles.provider}`}
               onClick={(e) => handleClick(e)}

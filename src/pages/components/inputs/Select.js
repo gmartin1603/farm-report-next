@@ -1,7 +1,8 @@
 import React from "react";
 // import dynamic from "next/dynamic";
 
-const Select = ({ id, options, label, handleChange, value, name }) => {
+const Select = (props) => {
+  const { id, options, label, handleChange, value, name } = props;
   const styles = {
     main: `w-full text-black font-bold rounded p-1`,
     label: `text-white`,
@@ -10,7 +11,7 @@ const Select = ({ id, options, label, handleChange, value, name }) => {
   };
 
   return (
-    <div className={styles.main}>
+    <div className={styles.main} data-cy={props['data-cy']}>
       {/* <h3 className={styles.label}> {label} </h3> */}
       <select
         id={id}

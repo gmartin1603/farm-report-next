@@ -4,18 +4,14 @@ import useReportsListener from "@/firebase/reportsListener";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import Select from "./inputs/Select";
+import commonServices from "../api/common";
+import commonAPI from "../api/common";
 
 function NoSSRReportSelect() {
   const [{ profile, report, reports, years }, dispatch] = useAppState();
   const [filter, setFilter] = useState({ name: "", commodity: "", year: "" });
   const [filtered, setFiltered] = useState([]);
   const [disabled, setDisabled] = useState(false);
-
-  let url =
-    "https://us-central1-farm-report-86ac2.cloudfunctions.net/saveReport";
-  if (process.env.NODE_ENV === "development") {
-    url = "http://localhost:5001/farm-report-86ac2/us-central1/saveReport";
-  }
 
   useReportsListener();
 
@@ -73,25 +69,26 @@ function NoSSRReportSelect() {
     setDisabled(true);
     console.log("create report", filter);
     let report = {
-      id: `${filter.name} ${filter.commodity} ${filter.year}`,
+      id: `${filter.name}-${filter.commodity}-${filter.year}`,
       name: filter.name,
       commodity: filter.commodity,
       year: filter.year,
       total: 0,
     };
 
-    fetch(url, {
-      method: "POST",
-      body: JSON.stringify({ coll: profile.uid, report: report }),
+    let load = {
+      coll: profile.uid,
+      data: report,
+
+    }
+
+    commonAPI("createReport", load).then((res) => {
+      console.log(res);
     })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(JSON.parse(data).message);
-      })
-      .catch((err) => {
-        console.log(err);
-        setDisabled(false);
-      });
+    .catch((err) => {
+      console.log(err);
+      setDisabled(false);
+    });
   };
 
   const styles = {
@@ -110,6 +107,7 @@ function NoSSRReportSelect() {
         <h1 className={styles.title}>Select or create a report to begin</h1>
         <div className={styles.filterCont}>
           <Select
+            data-cy="report-name-select"
             name="name"
             label="Name"
             value={filter.name}
@@ -118,6 +116,7 @@ function NoSSRReportSelect() {
             handleChange={handleFilterChange}
           />
           <Select
+            data-cy="report-commodity-select"
             name="commodity"
             label="Commodity"
             value={filter.commodity}
@@ -126,6 +125,7 @@ function NoSSRReportSelect() {
             handleChange={handleFilterChange}
           />
           <Select
+            data-cy="report-year-select"
             name="year"
             label="Year"
             value={filter.year}
@@ -134,6 +134,7 @@ function NoSSRReportSelect() {
             handleChange={handleFilterChange}
           />
           <button
+            data-cy="create-report-btn"
             className={`${styles.button} text-white bg-blue-500 disabled:bg-gray-500 disabled:text-gray-400 disabled:cursor-not-allowed`}
             onClick={(e) => createReport(e)}
             disabled={disabled}
