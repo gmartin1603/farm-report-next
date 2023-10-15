@@ -4,6 +4,9 @@ import React, { useEffect, useState } from "react";
 import useCollectionListener from "@/firebase/collectionListener";
 import { getReport } from "@/firebase/firestore";
 import Row from "../components/Row";
+import commonAPI from "../api/common";
+import { Button } from "@mui/material";
+import NewCategoryModal from "../components/modals/NewCategoryModal";
 
 const Id = ({}) => {
   const [disabled, setDisabled] = useState(false);
@@ -12,30 +15,26 @@ const Id = ({}) => {
 
   const [{ reports, user, expenses }, dispatch] = useAppState();
 
-  let url = "https://us-central1-farm-report-86ac2.cloudfunctions.net/saveReport";
-  if (process.env.NODE_ENV === "development") {
-    url = "http://localhost:5001/farm-report-86ac2/us-central1/saveReport";
-  }
+  let url = process.env.NEXT_PUBLIC_API_URL;
 
   useCollectionListener("expenses");
 
   const router = useRouter();
 
-  const { Id } = router.query;
+  const { id } = router.query;
 
   useEffect(() => {
-    if (user && Id) {
-      getReport(user, Id)
-        .then((res) => {
-          console.log(res);
-          // Keep track of changes
-          setReport(res);
-          // Control object
-          setReportTemplate(res);
-        })
-        .catch((err) => console.log(err));
+    console.log(reports)
+    console.log(id)
+    if (id) {
+      reports.map((report) => {
+        if (report.id === id) {
+          setReport(report);
+          setReportTemplate(report);
+        }
+      });
     }
-  }, [Id, user]);
+  }, [id]);
 
   const removeItem = (name, id) => {
     let arr = report[name];
@@ -53,18 +52,18 @@ const Id = ({}) => {
 
   const handleSave = async () => {
     console.log(report);
-    await fetch(url, {
-      method: "POST",
-      body: JSON.stringify({ report: report, coll: user }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(JSON.parse(data).message);
-        if (data.status === "success") {
-          // router.push("/");
+    commonAPI("saveReport", { report: report, coll: user })
+      .then((res) => {
+        console.log(res);
+        if (res.status === "success") {
+          router.push("/");
         }
       })
       .catch((err) => console.log(err));
+  };
+
+  const openModal = () => {
+    dispatch({ type: "OPEN_MODAL" });
   };
 
   const buildCategories = () => {
@@ -82,7 +81,7 @@ const Id = ({}) => {
   const styles = {
     main: `w-full flex flex-col items-center justify-start`,
     title: `text-2xl font-bold`,
-    titleCont: `w-full pb-2 mb-5 border-b-4 border-black`,
+    titleCont: `w-full flex items-end justify-between pb-2 mb-5 border-b-4 border-black`,
     spacer: `w-full border-b-2 border-black my-2`,
     filterCont: `w-full h-full flex flex-col items-center`,
     reportCont: `w-full max-w-[1000px] rounded p-[4%] m-[4%] text-black bg-white flex flex flex-col items-between justify-start`,
@@ -102,6 +101,7 @@ const Id = ({}) => {
           <h2 className={styles.title}>
             {report.name} {report.commodity} {report.year}
           </h2>
+          <NewCategoryModal />
         </div>
         {buildCategories().map((cat) => {
           return (

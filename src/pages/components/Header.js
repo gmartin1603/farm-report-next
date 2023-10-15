@@ -2,6 +2,9 @@ import React from "react";
 import { auth } from "../../firebase/firebaseApp";
 import { useAppState } from "@/context/AppProvider";
 import { useRouter } from "next/router";
+import { Avatar } from "@mui/material";
+import PersonIcon from "@mui/icons-material/Person";
+import { blue } from "@mui/material/colors";
 
 function Header({}) {
   const [{ profile, reports }, dispatch] = useAppState();
@@ -57,20 +60,24 @@ function Header({}) {
         <h1 className={styles.h1}>Farm Report</h1>
         <p className={styles.p}>Agricultural expense reports made simple</p>
       </div>
-      { (
+      {
         <>
           {/* <button className={styles.logo} onClick={() => auxCall()}>
             Aux
           </button> */}
-          <h1 className={styles.h1}>Welcome {profile.dName}!</h1>
+          <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
+            <PersonIcon />
+          </Avatar>
+          <h1 className={styles.h1}>{profile.dName}!</h1>
           <button
-          data-cy="log-out-btn" 
-          className={styles.button} 
-          onClick={() => signOut()}>
+            data-cy="log-out-btn"
+            className={styles.button}
+            onClick={() => signOut()}
+          >
             Log Out
           </button>
         </>
-      )}
+      }
     </div>
   );
 }

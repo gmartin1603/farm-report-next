@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useAppState } from "@/context/AppProvider";
-import Select from "./inputs/Select";
 import { useRouter } from "next/router";
-import Input from "./inputs/Input";
 import dynamic from "next/dynamic";
+import commonAPI from "../api/common";
+import {
+  Button,
+  FormControl,
+  FormGroup,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
+import { CancelPresentationOutlined, PlaylistAddCheck } from "@mui/icons-material";
 
 function NoSSRRow({ id, head, arr, removeItem, addItem }) {
   const initialState = {
@@ -19,13 +29,10 @@ function NoSSRRow({ id, head, arr, removeItem, addItem }) {
 
   const [expense, setExpense] = useState({});
   const [newRow, setNewRow] = useState(initialState);
+  const [nameError, setNameError] = useState(false);
+  const [newUnitError, setNewUnitError] = useState(false);
 
   const router = useRouter();
-
-  let url = "https://us-central1-farm-report-86ac2.cloudfunctions.net/saveItem";
-  if (process.env.NODE_ENV === "development") {
-    url = "http://localhost:5001/farm-report-86ac2/us-central1/saveItem";
-  }
 
   // useEffect(() => {
   //   // console.log(expense);
@@ -51,6 +58,7 @@ function NoSSRRow({ id, head, arr, removeItem, addItem }) {
           setNewRow((prev) => ({
             ...prev,
             newName: true,
+            name: "",
           }));
         } else {
           console.log(option);
@@ -58,6 +66,7 @@ function NoSSRRow({ id, head, arr, removeItem, addItem }) {
             ...prev,
             name: e.target.value,
             price: option.price,
+            unit: option.unit ? option.unit : "",
           }));
         }
         break;
@@ -66,6 +75,7 @@ function NoSSRRow({ id, head, arr, removeItem, addItem }) {
           setNewRow((prev) => ({
             ...prev,
             newUnit: true,
+            unit: "",
           }));
         } else {
           setNewRow((prev) => ({
@@ -93,18 +103,22 @@ function NoSSRRow({ id, head, arr, removeItem, addItem }) {
           newExpense.options.push({
             label: newRow.name,
             price: newRow.price,
+            unit: newRow.unit,
           });
         }
         if (!newExpense.units.includes(newRow.unit)) {
           newExpense.units.push(newRow.unit);
         }
         console.log(newExpense);
-        await fetch(url, {
-          method: "POST",
-          body: JSON.stringify({ coll: user, item: newExpense }),
-        })
-          .then((res) => res.json())
-          .then((data) => console.log(JSON.parse(data).message));
+        // await fetch(url, {
+        //   method: "POST",
+        //   body: JSON.stringify({ coll: user, item: newExpense }),
+        // })
+        //   .then((res) => res.json())
+        //   .then((data) => console.log(JSON.parse(data).message));
+        commonAPI("saveItem", { user: user, data: newExpense })
+          .then((res) => console.log(res))
+          .catch((err) => console.log(err));
       }
     }
     // Clear form
@@ -115,7 +129,7 @@ function NoSSRRow({ id, head, arr, removeItem, addItem }) {
     main: `w-full flex flex-col text-center my-[10px]`,
     print: `print:hidden`,
     heading: `font-bold text-lg underline`,
-    lineItem: `w-full flex justify-between my-[4px] border border-gray-400 rounded-md p-2 print:my-0 print:border-none print:rounded-none print:p-0`,
+    lineItem: `w-full flex justify-between my-[4px] p-2 print:my-0 print:border-none print:rounded-none print:p-0`,
     addBtn: `w-max font-bold text-lg bg-green-500 text-white px-2 rounded hover:bg-green-700 print:hidden`,
     deleteBtn: `w-max font-semibold bg-red-500 text-white px-2 rounded hover:bg-red-700 print:hidden`,
   };
@@ -164,87 +178,152 @@ function NoSSRRow({ id, head, arr, removeItem, addItem }) {
         ))}
       {newRow.id ? (
         <form className={styles.lineItem} onSubmit={(e) => handleAdd(e)}>
-          <div className="w-full flex justify-around my-[4px]">
-            <button
-              type="button"
-              className={styles.deleteBtn}
+          <div className="w-full flex justify-around items-center my-[4px]">
+            <IconButton
+              data-cy="row-cancel-btn"
+              variant="outlined"
+              size="small"
+              color="error"
+              title="Cancel"
               onClick={(e) => {
                 e.preventDefault;
                 setNewRow(initialState);
               }}
+              aria-label="cancel"
             >
-              X
-            </button>
+              <CancelPresentationOutlined />
+            </IconButton>
             {newRow.newName ? (
-              <Input
-                type="text"
-                label="New Product:"
-                row
-                value={newRow.name}
-                handleChange={(e) =>
-                  setNewRow((prev) => ({ ...prev, name: e.target.value }))
-                }
-                id="name"
-              />
+              <FormControl sx={{ m: 1, minWidth: 150 }}>
+                <TextField
+                  data-cy="row-name-input"
+                  id="name"
+                  label="New Name"
+                  variant="filled"
+                  size="small"
+                  value={newRow.name}
+                  onChange={handleChange}
+                  error={nameError}
+                  helperText={nameError ? "Name already exists" : ""}
+                />
+              </FormControl>
             ) : (
-              <Select
-                handleChange={handleChange}
-                id="name"
-                name="name"
-                label="Prouduct"
-                options={
-                  [...expense.options, { label: "Add New", price: 0 }] || []
-                }
-                value={newRow.name}
-              />
+              <FormControl sx={{ m: 1, minWidth: 150 }}>
+                <InputLabel id="name-select-label">Name</InputLabel>
+                <Select
+                  data-cy="report-name-select"
+                  labelId="name-select-label"
+                  id="name-select"
+                  name="name"
+                  size="small"
+                  value={newRow.name}
+                  label="Name"
+                  formhelpertext="Error"
+                  onChange={handleChange}
+                >
+                  <MenuItem value="">
+                    <em>None</em>
+                  </MenuItem>
+                  {[...expense.options, { label: "Add New", price: 0 }].map(
+                    (item) => (
+                      <MenuItem key={item.label} value={item.label}>
+                        {item.label}
+                      </MenuItem>
+                    )
+                  )}
+                </Select>
+              </FormControl>
             )}
-            <Input
-              type="float"
-              label="Quantity:"
-              row
-              value={newRow.qty}
-              handleChange={(e) =>
-                setNewRow((prev) => ({ ...prev, qty: e.target.value }))
-              }
+            <TextField
+              data-cy="row-qty-input"
               id="qty"
+              size="small"
+              label="Quantity"
+              variant="filled"
+              value={newRow.qty}
+              onChange={handleChange}
             />
             {newRow.newUnit ? (
-              <Input
-                type="text"
-                label="New Unit:"
-                row
-                value={newRow.unit}
-                handleChange={(e) =>
-                  setNewRow((prev) => ({ ...prev, unit: e.target.value }))
-                }
+              <TextField
+                data-cy="row-unit-input"
                 id="unit"
+                size="small"
+                label="New Unit"
+                variant="filled"
+                value={newRow.unit}
+                onChange={handleChange}
+                error={newUnitError}
+                helperText={newUnitError ? "Unit already exists" : ""}
               />
             ) : (
-              <Select
-                handleChange={handleChange}
-                id="unit"
-                label="Unit"
-                name="unit"
-                options={[...expense.units, "Add New"] || []}
-                value={newRow.unit}
-              />
+              <FormControl sx={{ m: 1, minWidth: 150 }}>
+                <InputLabel id="unit-select-label">Unit</InputLabel>
+                <Select
+                  data-cy="report-unit-select"
+                  labelId="unit-select-label"
+                  id="unit-select"
+                  name="unit"
+                  size="small"
+                  value={newRow.unit}
+                  label="Unit"
+                  onChange={handleChange}
+                >
+                  <MenuItem value="">
+                    <em>None</em>
+                  </MenuItem>
+                  {[...expense.units, "Add New"].map((item) => (
+                    <MenuItem key={item} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             )}
-            <Input
-              type="float"
-              label="Price per unit:"
-              row
-              value={newRow.price}
-              handleChange={(e) =>
-                setNewRow((prev) => ({ ...prev, price: e.target.value }))
-              }
-              id="price"
-            />
-            <button className={styles.addBtn} type="submit">
+            <FormControl>
+              <TextField
+                data-cy="row-price-input"
+                margin="dense"
+                id="price"
+                size="small"
+                label="Price"
+                variant="filled"
+                value={newRow.price}
+                onChange={handleChange}
+              />
+            </FormControl>
+            <FormControl>
+              <Button
+                data-cy="row-cancel-btn"
+                id="type"
+                startIcon={<PlaylistAddCheck />}
+                variant="outlined"
+                size="small"
+                color="success"
+                title="Save"
+                aria-label="save"
+                type="submit"
+              >
+                Add Row
+              </Button>
+            </FormControl>
+            {/* <button className={styles.addBtn} type="submit">
               Add
-            </button>
+            </button> */}
           </div>
         </form>
       ) : (
+        // <IconButton
+        //   data-cy="row-cancel-btn"
+        //   id="type"
+        //   variant="outlined"
+        //   size="small"
+        //   color="success"
+        //   title="Save"
+        //   aria-label="save"
+        //   onClick={() => setNewRow((prev) => ({ ...prev, id: Date.now() }))}
+        // >
+        //   <CancelPresentationOutlined />
+        // </IconButton>
         <button
           id="type"
           onClick={() => setNewRow((prev) => ({ ...prev, id: Date.now() }))}
